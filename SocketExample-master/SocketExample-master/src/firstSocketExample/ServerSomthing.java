@@ -15,6 +15,7 @@ public class ServerSomthing extends Thread {
     private Board board;
     private String sign;
     private String name;
+    private int count = 0;
 
     public ServerSomthing(Socket socket, Board board, String sign) throws IOException {
         this.socket = socket;
@@ -29,43 +30,50 @@ public class ServerSomthing extends Thread {
     public void run() {
         String text;
         try {
-            name = in.readLine();
             player = new Player(board, sign);
             try {
-                out.write("Enter position" + "\n");
+                out.write(sign+ "\n");
                 out.flush();
             } catch (IOException ignored) {
             }
             try {
                 while (true) {
                     text = in.readLine();
-                    if (text.equals("stop")) {
-                        this.downService(); // харакири
-                        break; // если пришла пустая строка - выходим из цикла прослушки
-                    }
-                    player.move(text);
-                    for (ServerSomthing vr : Server.serverList) {
-                        if (this.board == vr.getBoard())
-                            vr.send(board.toString()); // отослать принятое сообщение с привязанного клиента всем остальным влючая его
-                    }
-                    if (player.is_win()) {
+                    if (text.split(":").length < 2) {
+                        if (text.equals("connected")){
+                            for (ServerSomthing vr : Server.serverList) {
+                                if (this.board == vr.getBoard() && this != vr)
+                                    vr.send(text);
+                            }
+                            continue;
+                        }
+                        player.move(text);
+                        count++;
                         for (ServerSomthing vr : Server.serverList) {
-                            if (this.board == vr.getBoard()) {
-                                vr.send(name + " win"); // отослать принятое сообщение с привязанного клиента всем остальным влючая его
-                                vr.send("stop");
+                            if (this.board == vr.getBoard() && this != vr)
+                                vr.send(text);
+                        }
+                        if (count == 5 && !player.is_win()){
+                            for (ServerSomthing vr : Server.serverList) {
+                                if (this.board == vr.getBoard()) {
+                                    vr.send("ничья");
+                                }
                             }
                         }
-//                        for (ServerSomthing vr : Server.serverList) {
-//                            if (this.board == vr.getBoard()){
-//                                vr.send("stop"); // отослать принятое сообщение с привязанного клиента всем остальным влючая его
-//
-//                            }
-//                        }
+                        if (player.is_win()) {
+                            for (ServerSomthing vr : Server.serverList) {
+                                if (this.board == vr.getBoard()) {
+                                    vr.send(sign+" win");
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        for (ServerSomthing vr : Server.serverList) {
+                            vr.send(text);
+                        }
                     }
                     System.out.println("Echoing: " + text);
-//                    for (ServerSomthing vr : Server.serverList) {
-//                        vr.send(text); // отослать принятое сообщение с привязанного клиента всем остальным влючая его
-//                    }
                 }
             } catch (NullPointerException ignored) {
             }

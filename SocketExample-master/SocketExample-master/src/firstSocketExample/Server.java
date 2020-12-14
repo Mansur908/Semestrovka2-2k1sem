@@ -8,13 +8,12 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 public class Server {
-    public static final int PORT = 8082;
+    public static final int PORT = 8084;
     public static LinkedList<ServerSomthing> serverList = new LinkedList<>();
 
     public static void main (String[] args) throws IOException {
         ServerSocket server = new ServerSocket(PORT);
         System.out.println("Server Started");
-//        Board board = new Board();
         try {
             while (true) {
                 Board board = new Board();
@@ -35,4 +34,5 @@ public class Server {
             server.close();
         }
     }
+
 }
