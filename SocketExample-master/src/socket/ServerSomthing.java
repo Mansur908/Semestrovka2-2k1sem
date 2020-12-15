@@ -14,7 +14,6 @@ public class ServerSomthing extends Thread {
     private Player player;
     private Board board;
     private String sign;
-    private String name;
     private int count = 0;
 
     public ServerSomthing(Socket socket, Board board, String sign) throws IOException {

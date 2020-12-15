@@ -46,6 +46,10 @@ public class Board {
         this.a1 = a1;
     }
 
+    public String getA1() {
+        return a1;
+    }
+
     public void setA2(String a2) {
         this.a2 = a2;
     }
